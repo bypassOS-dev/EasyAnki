@@ -1,14 +1,15 @@
 use rand::Rng;
+use std::future;
 use std::sync::Arc;
 use tokio::sync::{Mutex, MutexGuard};
 use tokio::time::Duration;
 #[tokio::main]
 async fn main() {
     let visit = Arc::new(Mutex::new(0));
-
+    let mut handles = Vec::new();
     for i in 1..=10 {
         let visit1 = visit.clone();
-        tokio::spawn(async move {
+        let handle = tokio::spawn(async move {
             let num = visit1.lock().await;
             let a = get_vall(num);
             println!("Tries {a}");
@@ -16,9 +17,11 @@ async fn main() {
             tokio::time::sleep(Duration::from_secs(random)).await;
             println!("Tries {a} was made!");
         });
+        handles.push(handle);
         println!("{i} task was started!");
     }
-    tokio::time::sleep(Duration::from_secs(10)).await;
+    //tokio::time::sleep(Duration::from_secs(10)).await;
+    futures::future::join_all(handles).await;
 }
 fn get_vall(mut val: MutexGuard<i32>) -> i32{
     *val = *val + 1;
