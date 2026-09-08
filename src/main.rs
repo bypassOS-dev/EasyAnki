@@ -1,30 +1,47 @@
-use rand::Rng;
-use std::future;
-use std::sync::Arc;
-use tokio::sync::{Mutex, MutexGuard};
-use tokio::time::Duration;
+use std::io::{self, Write};
+
 #[tokio::main]
-async fn main() {
-    let visit = Arc::new(Mutex::new(0));
-    let mut handles = Vec::new();
-    for i in 1..=10 {
-        let visit1 = visit.clone();
-        let handle = tokio::spawn(async move {
-            let num = visit1.lock().await;
-            let a = get_vall(num);
-            println!("Tries {a}");
-            let random = rand::thread_rng().gen_range(1..10);
-            tokio::time::sleep(Duration::from_secs(random)).await;
-            println!("Tries {a} was made!");
-        });
-        handles.push(handle);
-        println!("{i} task was started!");
-    }
-    //tokio::time::sleep(Duration::from_secs(10)).await;
-    futures::future::join_all(handles).await;
+async fn main() {   
+    let choice = String::new();
+    let result = hello_menu(choice).await;
+    println!("{result}")
 }
-fn get_vall(mut val: MutexGuard<i32>) -> i32{
-    *val = *val + 1;
-    let a = *val;
-    a
+async fn hello_menu(mut input: String) -> String{
+    println!("\n\n\n\n=====================================================");
+    println!("[1] Add new deck os cards");
+    println!("[2] Learn/repeat exiting decks card");
+    println!("[3] Edit/remove something from all my decks cart");
+    println!("=====================================================");
+    print!("Your choice: ");
+    std::io::stdout().flush().unwrap();
+
+    io::stdin()
+        .read_line(&mut input)
+        .expect("[!!!]Read error");
+    println!();
+
+    match input.trim() {
+        "1" => {
+            choice_1().await;
+        }
+        "2" => {
+            choice_2().await;
+        }
+        "3" => {
+            choice_3().await;
+        }
+        _ => {
+            println!("Hello world!")
+        }
+    }
+    input
+}
+async fn choice_1 () {
+    
+}
+async fn choice_2() {
+
+}
+async fn choice_3() {
+
 }
