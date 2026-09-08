@@ -1,4 +1,6 @@
-use std::{io::{self, Write}, mem::transmute};
+use std::{io::{self, Write}};
+
+use tokio::{fs::OpenOptions, io::AsyncWriteExt};
 
 #[tokio::main]
 async fn main() {   
@@ -39,7 +41,7 @@ async fn hello_menu(mut input: String) -> String{
 async fn choice_1 () {
     let mut name_file = String::new();
     
-    loop {
+    let full_name = loop {
         name_file.clear();
         print!("\n\nMake name to your new deck of card: ");
         std::io::stdout().flush().unwrap();
@@ -54,15 +56,15 @@ async fn choice_1 () {
         match tokio::fs::OpenOptions::new().write(true).create_new(true).open(&full_name).await {
             Ok(_) => {
                 println!("\n File successfully created!");
-                break;
+                break full_name;
             }
             Err(err) => {
                 println!("Error: {err}");
                 continue;
             }
         }
-    }
-    print!("\n\nDo u want to add some world in your new deck? ");
+    };
+    print!("\n\nDo u want to add word in your new deck(yes/no)? ");
     std::io::stdout().flush().unwrap();
 
     let mut yes_no = String::new();
@@ -74,32 +76,59 @@ async fn choice_1 () {
 
     if lower_string == "yes" || lower_string == "y" ||  lower_string == "" {
         print!("Great!");
+        std::io::stdout().flush().unwrap();
+
         let mut counter = 1;
         loop {
+            if counter != 1{
+                let mut move_on = String::new();
+                print!("Move on (yes/no)? ");
+                io::stdout().flush().unwrap();
+                
+                io::stdin()
+                .read_line(&mut move_on)
+                .unwrap();
+                let move_on = move_on.trim();
+                let move_on = move_on.to_lowercase();
+                if move_on == "no" || move_on == "n" {
+                    println!("Ok! Save the list...");
+                    break;
+                }
+            }
+
             let mut word = String::new();
             print!("Enter {counter} word or 'stop' if u wanna end: ");
+            std::io::stdout().flush().unwrap();
+
             io::stdin()
                 .read_line(&mut word)
                 .expect("Read error... Why I am writing it? It will never happen anyway....");
             let normal_word = word.trim();
             let normal_word = normal_word.to_lowercase();
-            std::io::stdout().flush().unwrap();
-
+            
             if let "stop" = normal_word.as_str() {
                 break;
             }
 
             print!("\nEnter translate this ({normal_word}) word: ");
-            let mut translate = String::new();
+            std::io::stdout().flush().unwrap();
 
+            let mut translate = String::new();
             io::stdin()
                 .read_line(&mut translate)
                 .expect("Read error... Why I am writing it? It will never happen anyway....");
             let normal_translate = translate.trim();
             let normal_translate = normal_translate.to_lowercase();
-            std::io::stdout().flush().unwrap();
 
             let text_to_append = format!("{counter}. {normal_word}: {normal_translate}\n");
+
+            let mut file = OpenOptions::new()
+                .append(true)
+                .open(full_name.clone())
+                .await
+                .unwrap();
+
+            file.write_all(text_to_append.as_bytes()).await.unwrap();
 
             counter += 1;
         }
