@@ -1,12 +1,11 @@
-use std::{io::{self, Write}};
-
+use std::{fs, io::{self, Write}};
+use std::path::PathBuf;
 use tokio::{fs::OpenOptions, io::AsyncWriteExt};
 
 #[tokio::main]
 async fn main() {   
     let choice = String::new();
-    let result = hello_menu(choice).await;
-    println!("{result}")
+    let _result = hello_menu(choice).await;
 }
 async fn hello_menu(mut input: String) -> String{
     println!("\n\n\n\n=====================================================");
@@ -51,7 +50,7 @@ async fn choice_1 () {
             .expect("Read error");
         let ok_name = name_file.trim();
 
-        let full_name = format!("{}.txt", ok_name);
+        let full_name = PathBuf::from("decks_of_card").join(ok_name);
 
         match tokio::fs::OpenOptions::new().write(true).create_new(true).open(&full_name).await {
             Ok(_) => {
@@ -138,8 +137,18 @@ async fn choice_1 () {
 }
 async fn choice_2() {
     println!("That's right! Repeatition is most important in education!");
-    println!("Your decks of card:")
-    
+    println!("Your decks of card: ");
+
+    let paths = fs::read_dir("./decks_of_card").unwrap();
+
+    for path in paths {
+        let entry = path.unwrap();
+        let name = entry.file_name();
+
+        if let Some(file_name) = name.to_str() {
+            println!("{}", file_name);
+        }
+    }
 }
 async fn choice_3() {
 
