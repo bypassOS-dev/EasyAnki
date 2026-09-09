@@ -1,7 +1,8 @@
-use std::{fs, io::{self, Write}};
+use std::{fs::{self, File}, io::{self, BufRead, BufReader, Write}};
 use std::path::PathBuf;
 use tokio::{fs::OpenOptions, io::AsyncWriteExt};
-
+use rand::seq::SliceRandom;
+use rand::thread_rng;
 #[tokio::main]
 async fn main() {   
     let choice = String::new();
@@ -14,7 +15,7 @@ async fn hello_menu(mut input: String) -> String{
     println!("[3] Edit/remove something from all my decks cart");
     println!("=====================================================");
     print!("Your choice: ");
-    std::io::stdout().flush().unwrap();
+    std::io::stdout().flush().unwrap(); 
 
     io::stdin()
         .read_line(&mut input)
@@ -149,7 +150,52 @@ async fn choice_2() {
             println!("{}", file_name);
         }
     }
+
+    print!("Write name the decks of card you wanna repeat: ");
+    io::stdout().flush().unwrap();
+
+    let mut name_deck = String::new();
+    io::stdin()
+        .read_line(&mut name_deck)
+        .unwrap();
+    
+
+
 }
 async fn choice_3() {
 
+}
+
+async fn repeat_deck(deck_name: &str) {
+    let path = format!("./decks_of_card/{}", deck_name); 
+    let content = fs::read_to_string(path).unwrap();
+
+    for line in content.lines() {
+        let line = line.trim();
+
+        if line.is_empty() {
+            continue;
+        } 
+
+        let mut first_line = line.splitn(2, ". ");
+
+        let word_num = first_line.next().unwrap().trim();
+        let words = first_line.next().unwrap().trim();
+
+        let mut words = words.splitn(2, " = ");
+
+        let org_word = words.next().unwrap().trim();
+        let translate = words.next().unwrap().trim();
+
+    }
+}
+async fn generate_random(deck_name: &str) -> Vec<&str>{
+    let path = format!("./decks_of_card/{}", deck_name);
+
+    let file = File::open(path).unwrap();
+    let reader = BufReader::new(file);
+
+    let line_count = reader.lines().count(); 
+
+    todo!()
 }
