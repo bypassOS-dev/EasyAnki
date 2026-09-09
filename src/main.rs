@@ -3,9 +3,9 @@ use std::path::PathBuf;
 use tokio::{fs::OpenOptions, io::AsyncWriteExt};
 use rand::seq::SliceRandom;
 use rand::thread_rng;
+use colored::Colorize;
 
 struct Data {
-    num: usize,
     value: String,
 }
 
@@ -143,8 +143,8 @@ async fn choice_1 () {
     }
 }
 async fn choice_2() {
-    println!("That's right! Repeatition is most important in education!");
-    println!("Your decks of card: ");
+    println!("{}", "That's right! Repeatition is most important in education!".green().bold());
+    println!("{}", "Your decks of card: \n".green().bold());
 
     let paths = fs::read_dir("./decks_of_card").unwrap();
 
@@ -157,14 +157,15 @@ async fn choice_2() {
         }
     }
 
-    print!("Write name the decks of card you wanna repeat: ");
+    print!("{}", "\nWrite name the decks of card you wanna repeat: ".bold());
     io::stdout().flush().unwrap();
 
     let mut name_deck = String::new();
     io::stdin()
         .read_line(&mut name_deck)
         .unwrap();
-    
+
+    let name_deck = name_deck.trim();
     repeat_deck(&name_deck).await;
 }
 async fn choice_3() {
@@ -186,10 +187,10 @@ async fn repeat_deck(deck_name: &str) {
 
         let mut first_line = line.splitn(2, ". ");
 
-        let word_num = first_line.next().unwrap().trim().parse().unwrap();
+        let _word_num: i32 = first_line.next().unwrap().trim().parse().unwrap();
         let words = first_line.next().unwrap().trim().to_string();
 
-        vector.push(Data { num: word_num, value: words });
+        vector.push(Data { value: words });
     }
 
     if vector.is_empty() {
@@ -199,29 +200,29 @@ async fn repeat_deck(deck_name: &str) {
     let mut rng = thread_rng();
     vector.shuffle(&mut rng);
 
+    print!("Do u wanna learn 'normal world --> translate'[1] or 'translate --> normal world'[2]? ");
+    io::stdout().flush().unwrap();
+
+    let mut answ = String::new();
+
+    io::stdin()
+        .read_line(&mut answ)
+        .unwrap();
+
+    let answ1 = answ.trim();
+    if answ1 == "1" || answ1 == "2" {
+        
+    } else {
+        println!("Write 1 OR 2 [!!!]");
+    }
+
+    let choise: i32 = answ1.parse().unwrap();
+
     for card in &vector {
-        let mut org_and_translate = card.value.splitn(2, " = ");
+        let mut org_and_translate = card.value.splitn(2, ":");
 
         let org = org_and_translate.next().unwrap().trim();
         let translate = org_and_translate.next().unwrap().trim();
-
-        let mut answ = String::new();
-        let choise: i32= loop {
-            print!("Do u wanna learn 'normal world --> translate'[1] or 'translate --> normal world'[2]? ");
-            io::stdout().flush().unwrap();
-
-            answ.clear();
-
-            io::stdin()
-                .read_line(&mut answ)
-                .unwrap();
-
-            let answ1 = answ.trim();
-            if answ1 == "1" || answ1 == "2" {
-                break answ.parse().unwrap();
-            }
-            println!("Write 1 OR 2 [!!!]");
-        };
 
         if choise == 1 {
             let first = org;
@@ -238,9 +239,9 @@ async fn repeat_deck(deck_name: &str) {
                 .unwrap();
 
             if second == answer.trim() {
-                println!("You are right! Move on!");
+                println!("{}", "You are right! Move on!".green().bold());
             } else {
-                println!("No! right answer - {second}");
+                println!("{}{second}", "No! right answer - ".red().bold());
         
             }
         } else {
@@ -257,9 +258,9 @@ async fn repeat_deck(deck_name: &str) {
                 .read_line(&mut answer)
                 .unwrap();
             if second == answer.trim() {
-                println!("You are right! Move on!");
+                println!("{}", "You are right! Move on!".green().bold());
             } else {
-                println!("No! right answer - {second}");
+                println!("{}{second}", "No! right answer - ".red().bold());
             }
         }
     }
