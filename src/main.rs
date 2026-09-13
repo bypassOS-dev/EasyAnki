@@ -1,17 +1,13 @@
-use colored::Colorize;
-use rand::seq::SliceRandom;
-use rand::thread_rng;
-use std::path::PathBuf;
 use std::{
-    fs::{self},
     io::{self, Write},
 };
-use tokio::{fs::OpenOptions, io::AsyncWriteExt};
 
 mod choise1;
 mod choise2;
+mod choise3;
 use choise1::choice_1;
 use choise2::choice_2;
+use choise3::choice_3;
 
 #[tokio::main]
 async fn main() {
@@ -19,7 +15,7 @@ async fn main() {
         println!("\n\n\n\n=====================================================");
         println!("[1] Add new deck of cards");
         println!("[2] Learn/repeat exiting decks card");
-        println!("[3] Edit/remove something from all my decks cart");
+        println!("[3] Info");
         println!("=====================================================");
         print!("Your choice: ");
         std::io::stdout().flush().unwrap();
@@ -43,8 +39,4 @@ async fn main() {
             }
         }
     }
-}
-
-async fn choice_3() {
-    println!("You are lazybones! just change file bro!");
 }

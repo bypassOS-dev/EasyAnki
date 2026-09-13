@@ -3,6 +3,8 @@ use rand::seq::SliceRandom;
 use rand::thread_rng;
 use colored::Colorize;
 
+mod checker;
+use checker::is_it_ok;
 struct Data {
     value: String,
 }
@@ -98,13 +100,17 @@ async fn repeat_deck(deck_name: &str) {
 
             io::stdin()
                 .read_line(&mut answer)
-                .unwrap();
+                .expect("qweqweqwe");
 
             if second == answer.trim() {
                 println!("{}", "You are right! Move on!".green().bold());
             } else {
-                println!("{}{second}", "No! right answer - ".red().bold());
-        
+                let yellow = is_it_ok(first, second).await;
+                if yellow {
+                    println!("{}{}", "Nope! U almost say it right! Right answer - ".yellow().bold(), second)
+                }else {
+                    println!("{}{second}", "No! right answer - ".red().bold());
+                }
             }
         } else {
             let first = translate;
